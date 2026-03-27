@@ -17,21 +17,19 @@ namespace TechStoreApi.Services
 
 		public string GenerarToken(Usuario usuario)
 		{
-			// Buscamos la clave secreta en appsettings.json
 			var key = _config["Jwt:Key"]
 				?? throw new Exception("La clave JWT no está configurada en appsettings.json");
 
 			var issuer = _config["Jwt:Issuer"] ?? "TechStoreApi";
 			var audience = _config["Jwt:Audience"] ?? "TechStoreAndroidClient";
 
-			// Los Claims son la información que "viaja" dentro del token
 			var claims = new[]
 			{
 				new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
 				new Claim(ClaimTypes.Name, usuario.NombreCompleto),
 				new Claim(ClaimTypes.Email, usuario.Email),
-				new Claim(ClaimTypes.Role, usuario.Rol), // "Cliente" o "Admin"
-                new Claim("uid", usuario.Id.ToString()) // ID para facilitar el uso en Android
+				new Claim(ClaimTypes.Role, usuario.Rol), 
+                new Claim("uid", usuario.Id.ToString()) 
             };
 
 			var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
@@ -41,7 +39,7 @@ namespace TechStoreApi.Services
 				issuer: issuer,
 				audience: audience,
 				claims: claims,
-				expires: DateTime.UtcNow.AddHours(24), // El token durará 1 día
+				expires: DateTime.UtcNow.AddHours(24), 
 				signingCredentials: credentials
 			);
 

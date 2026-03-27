@@ -3,15 +3,15 @@
 	public class Pedido
 	{
 		public int Id { get; set; }
-		public DateTime FechaPedido { get; set; } = DateTime.Now;
+		public DateTime FechaPedido { get; set; } = DateTime.UtcNow;
 		public decimal Total { get; set; }
-		public string Estado { get; set; } = "Pendiente"; // Pendiente, Enviado, Entregado
+		public string Estado { get; set; } = "Pendiente";
 
-		// Relación con Usuario
+		public string DireccionEnvio { get; set; } = "Sin dirección";
+
 		public int UsuarioId { get; set; }
 		public Usuario? Usuario { get; set; }
 
-		// Detalle de los productos comprados
 		public List<DetallePedido> Detalles { get; set; } = new();
 	}
 }

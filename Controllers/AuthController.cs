@@ -18,7 +18,7 @@ namespace TechStoreApi.Controllers
 		public async Task<ActionResult<UsuarioDTO>> Login(LoginRequest request)
 		{
 			var usuario = await _context.Usuarios
-				.FirstOrDefaultAsync(u => u.Email == request.Email && u.PasswordHash == request.Password); // En producción usar BCrypt
+				.FirstOrDefaultAsync(u => u.Email == request.Email && u.PasswordHash == request.Password); 
 
 			if (usuario == null) return Unauthorized("Correo o contraseña incorrectos");
 

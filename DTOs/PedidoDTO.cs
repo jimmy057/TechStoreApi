@@ -1,11 +1,10 @@
 ﻿namespace TechStoreApi.DTOs
 {
-	public class PedidoDTO
+	public class PedidoDto
 	{
-		public int Id { get; set; }
-		public DateTime Fecha { get; set; }
+		public int UsuarioId { get; set; }
 		public decimal Total { get; set; }
-		public string Estado { get; set; } = string.Empty;
-		public List<DetallePedidoDTO> Items { get; set; } = new();
+		public string DireccionEnvio { get; set; } = string.Empty; // Agregado
+		public List<DetallePedidoDTO> Detalles { get; set; } = new();
 	}
 }
