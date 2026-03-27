@@ -8,15 +8,14 @@ using TechStoreApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configurar Entity Framework con PostgreSQL (CORREGIDO)
 builder.Services.AddDbContext<AppDbContext>(options =>
 	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2. Registrar el Servicio de JWT (Inyección de Dependencias)
 builder.Services.AddScoped<JwtService>();
 
-// 3. Configurar Autenticación JWT
-var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "Clave_Super_Secreta_TechStore_2026");
+var keyStr = builder.Configuration["Jwt:Key"] ?? "Esta_Es_Una_Clave_Super_Secreta_De_Mas_De_32_Caracteres_12345";
+var key = Encoding.UTF8.GetBytes(keyStr);
+
 builder.Services.AddAuthentication(options =>
 {
 	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -36,7 +35,6 @@ builder.Services.AddAuthentication(options =>
 	};
 });
 
-// 4. Habilitar CORS (Vital para que Android Studio pueda conectar)
 builder.Services.AddCors(options =>
 {
 	options.AddPolicy("AllowAndroidApp", policy =>
@@ -50,13 +48,12 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// 5. Configurar Swagger para soportar el candado de JWT
 builder.Services.AddSwaggerGen(c =>
 {
 	c.SwaggerDoc("v1", new OpenApiInfo { Title = "TechStore API", Version = "v1" });
 	c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 	{
-		Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+		Description = "JWT Authorization header usando Bearer. Ejemplo: \"Authorization: Bearer {token}\"",
 		Name = "Authorization",
 		In = ParameterLocation.Header,
 		Type = SecuritySchemeType.ApiKey,
@@ -76,12 +73,12 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// 6. Pipeline de la Aplicación
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
-}
+	c.SwaggerEndpoint("/swagger/v1/swagger.json", "TechStore API v1");
+	c.RoutePrefix = "swagger"; 
+});
 
 app.UseCors("AllowAndroidApp");
 
@@ -97,14 +94,12 @@ using (var scope = app.Services.CreateScope())
 	{
 		var context = services.GetRequiredService<AppDbContext>();
 		context.Database.Migrate();
-		Console.WriteLine("Base de datos migrada con éxito.");
+		Console.WriteLine("--- BASE DE DATOS MIGRADA CON ÉXITO ---");
 	}
 	catch (Exception ex)
 	{
-		Console.WriteLine($"Error en la migración: {ex.Message}");
+		Console.WriteLine($"--- ERROR EN LA MIGRACIÓN: {ex.Message} ---");
 	}
 }
-
-app.Run();
 
 app.Run();
