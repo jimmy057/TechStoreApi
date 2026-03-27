@@ -8,9 +8,9 @@ using TechStoreApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configurar Entity Framework con SQL Server
+// 1. Configurar Entity Framework con PostgreSQL (CORREGIDO)
 builder.Services.AddDbContext<AppDbContext>(options =>
-	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // 2. Registrar el Servicio de JWT (Inyección de Dependencias)
 builder.Services.AddScoped<JwtService>();
@@ -83,12 +83,28 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
-// Orden importante: CORS -> Auth -> Authorization
 app.UseCors("AllowAndroidApp");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+	var services = scope.ServiceProvider;
+	try
+	{
+		var context = services.GetRequiredService<AppDbContext>();
+		context.Database.Migrate();
+		Console.WriteLine("Base de datos migrada con éxito.");
+	}
+	catch (Exception ex)
+	{
+		Console.WriteLine($"Error en la migración: {ex.Message}");
+	}
+}
+
+app.Run();
 
 app.Run();

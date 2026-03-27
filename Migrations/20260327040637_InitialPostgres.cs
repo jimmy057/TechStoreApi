@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace TechStoreApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialPostgres : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,10 +16,10 @@ namespace TechStoreApi.Migrations
                 name: "Categorías",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImagenIconoUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    ImagenIconoUrl = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -29,13 +30,13 @@ namespace TechStoreApi.Migrations
                 name: "Usuarios",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    NombreCompleto = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rol = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FechaRegistro = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    NombreCompleto = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    Rol = table.Column<string>(type: "text", nullable: false),
+                    FechaRegistro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,21 +47,21 @@ namespace TechStoreApi.Migrations
                 name: "Productos",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Marca = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Precio = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    PrecioOferta = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                    Stock = table.Column<int>(type: "int", nullable: false),
-                    ImagenUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CategoriaId = table.Column<int>(type: "int", nullable: false),
-                    Procesador = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RAM = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Almacenamiento = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Calificacion = table.Column<double>(type: "float", nullable: false),
-                    FechaCreado = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    Marca = table.Column<string>(type: "text", nullable: false),
+                    Descripcion = table.Column<string>(type: "text", nullable: false),
+                    Precio = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    PrecioOferta = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
+                    Stock = table.Column<int>(type: "integer", nullable: false),
+                    ImagenUrl = table.Column<string>(type: "text", nullable: false),
+                    CategoriaId = table.Column<int>(type: "integer", nullable: false),
+                    Procesador = table.Column<string>(type: "text", nullable: false),
+                    RAM = table.Column<string>(type: "text", nullable: false),
+                    Almacenamiento = table.Column<string>(type: "text", nullable: false),
+                    Calificacion = table.Column<double>(type: "double precision", nullable: false),
+                    FechaCreado = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -77,12 +78,12 @@ namespace TechStoreApi.Migrations
                 name: "Pedidos",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FechaPedido = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Total = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Estado = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UsuarioId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    FechaPedido = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Total = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    Estado = table.Column<string>(type: "text", nullable: false),
+                    UsuarioId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -99,12 +100,12 @@ namespace TechStoreApi.Migrations
                 name: "DetallePedidos",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PedidoId = table.Column<int>(type: "int", nullable: false),
-                    ProductoId = table.Column<int>(type: "int", nullable: false),
-                    Cantidad = table.Column<int>(type: "int", nullable: false),
-                    PrecioUnitario = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PedidoId = table.Column<int>(type: "integer", nullable: false),
+                    ProductoId = table.Column<int>(type: "integer", nullable: false),
+                    Cantidad = table.Column<int>(type: "integer", nullable: false),
+                    PrecioUnitario = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
