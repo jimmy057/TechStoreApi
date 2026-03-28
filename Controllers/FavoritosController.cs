@@ -23,5 +23,18 @@ namespace TechStoreApi.Controllers
 		[HttpGet("{usuarioId}")]
 		public async Task<ActionResult> Get(int usuarioId) =>
 			Ok(await _context.Favoritos.Where(f => f.UsuarioId == usuarioId).Include(f => f.Producto).ToListAsync());
+
+		[HttpDelete("{usuarioId}/{productoId}")]
+		public async Task<IActionResult> Delete(int usuarioId, int productoId)
+		{
+			var fav = await _context.Favoritos
+				.FirstOrDefaultAsync(f => f.UsuarioId == usuarioId && f.ProductoId == productoId);
+
+			if (fav == null) return NotFound(new { mensaje = "El producto no está en favoritos" });
+
+			_context.Favoritos.Remove(fav);
+			await _context.SaveChangesAsync();
+			return Ok(new { mensaje = "Eliminado de favoritos" });
+		}
 	}
 }
