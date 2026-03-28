@@ -14,7 +14,6 @@ namespace TechStoreApi.Controllers
 
 		public ProductosController(AppDbContext context) => _context = context;
 
-		// GET: api/productos (Opcional filtrar por categoria)
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<ProductoDTO>>> GetProductos(int? categoriaId = null)
 		{
@@ -54,6 +53,61 @@ namespace TechStoreApi.Controllers
 				RAM = p.RAM,
 				Procesador = p.Procesador
 			};
+		}
+
+		// NUEVO: Buscador para la App Android
+		[HttpGet("buscar")]
+		public async Task<ActionResult<IEnumerable<ProductoDTO>>> BuscarProductos([FromQuery] string q)
+		{
+			return await _context.Productos
+				.Include(p => p.Categoria)
+				.Where(p => p.Nombre.ToLower().Contains(q.ToLower()) || p.Marca.ToLower().Contains(q.ToLower()))
+				.Select(p => new ProductoDTO
+				{
+					Id = p.Id,
+					Nombre = p.Nombre,
+					Marca = p.Marca,
+					Precio = p.Precio,
+					ImagenUrl = p.ImagenUrl,
+					NombreCategoria = p.Categoria != null ? p.Categoria.Nombre : "General"
+				}).ToListAsync();
+		}
+
+		// NUEVO (ADMIN): Crear producto
+		[HttpPost]
+		public async Task<ActionResult<Producto>> PostProducto(Producto producto)
+		{
+			_context.Productos.Add(producto);
+			await _context.SaveChangesAsync();
+			return Ok(producto);
+		}
+
+		// NUEVO (ADMIN): Editar producto (Para actualizar stock manualmente, por ejemplo)
+		[HttpPut("{id}")]
+		public async Task<IActionResult> PutProducto(int id, Producto producto)
+		{
+			if (id != producto.Id) return BadRequest(new { mensaje = "El ID no coincide" });
+
+			_context.Entry(producto).State = EntityState.Modified;
+
+			try { await _context.SaveChangesAsync(); }
+			catch (DbUpdateConcurrencyException)
+			{
+				if (!_context.Productos.Any(e => e.Id == id)) return NotFound();
+				else throw;
+			}
+			return NoContent();
+		}
+
+		// NUEVO (ADMIN): Borrar producto
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteProducto(int id)
+		{
+			var p = await _context.Productos.FindAsync(id);
+			if (p == null) return NotFound();
+			_context.Productos.Remove(p);
+			await _context.SaveChangesAsync();
+			return Ok(new { mensaje = "Producto eliminado" });
 		}
 	}
 }

@@ -12,10 +12,7 @@ namespace TechStoreApi.Controllers
 	{
 		private readonly AppDbContext _context;
 
-		public PedidosController(AppDbContext context)
-		{
-			_context = context;
-		}
+		public PedidosController(AppDbContext context) => _context = context;
 
 		[HttpPost]
 		public async Task<ActionResult> PostPedido(PedidoDto pedidoDto)
@@ -30,7 +27,9 @@ namespace TechStoreApi.Controllers
 				UsuarioId = pedidoDto.UsuarioId,
 				Total = pedidoDto.Total,
 				DireccionEnvio = pedidoDto.DireccionEnvio,
-				FechaPedido = DateTime.UtcNow,
+				MetodoPago = string.IsNullOrEmpty(pedidoDto.MetodoPago) ? "Tarjeta" : pedidoDto.MetodoPago,
+				MetodoEnvio = string.IsNullOrEmpty(pedidoDto.MetodoEnvio) ? "Estándar" : pedidoDto.MetodoEnvio,
+				Fecha = DateTime.UtcNow, 
 				Estado = "Pendiente",
 				Detalles = pedidoDto.Detalles.Select(d => new DetallePedido
 				{
@@ -39,6 +38,18 @@ namespace TechStoreApi.Controllers
 					PrecioUnitario = d.PrecioUnitario
 				}).ToList()
 			};
+
+			foreach (var item in nuevoPedido.Detalles)
+			{
+				var productoBD = await _context.Productos.FindAsync(item.ProductoId);
+				if (productoBD != null)
+				{
+					if (productoBD.Stock < item.Cantidad)
+						return BadRequest(new { mensaje = $"Stock insuficiente para: {productoBD.Nombre}" });
+
+					productoBD.Stock -= item.Cantidad; 
+				}
+			}
 
 			try
 			{
@@ -55,11 +66,7 @@ namespace TechStoreApi.Controllers
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(500, new
-				{
-					mensaje = "Error al guardar el pedido",
-					detalles = ex.InnerException?.Message ?? ex.Message
-				});
+				return StatusCode(500, new { mensaje = "Error al guardar el pedido", detalles = ex.InnerException?.Message ?? ex.Message });
 			}
 		}
 
@@ -69,7 +76,7 @@ namespace TechStoreApi.Controllers
 			var pedidos = await _context.Pedidos
 				.Where(p => p.UsuarioId == usuarioId)
 				.Include(p => p.Detalles)
-				.OrderByDescending(p => p.FechaPedido)
+				.OrderByDescending(p => p.Fecha) 
 				.ToListAsync();
 
 			return Ok(pedidos);
