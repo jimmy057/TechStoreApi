@@ -29,7 +29,7 @@ namespace TechStoreApi.Controllers
 			{
 				UsuarioId = pedidoDto.UsuarioId,
 				Total = pedidoDto.Total,
-				DireccionEnvio = pedidoDto.DireccionEnvio, 
+				DireccionEnvio = pedidoDto.DireccionEnvio,
 				FechaPedido = DateTime.UtcNow,
 				Estado = "Pendiente",
 				Detalles = pedidoDto.Detalles.Select(d => new DetallePedido
@@ -55,7 +55,11 @@ namespace TechStoreApi.Controllers
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(500, new { mensaje = "Error al guardar el pedido", error = ex.Message });
+				return StatusCode(500, new
+				{
+					mensaje = "Error al guardar el pedido",
+					detalles = ex.InnerException?.Message ?? ex.Message
+				});
 			}
 		}
 
@@ -64,14 +68,9 @@ namespace TechStoreApi.Controllers
 		{
 			var pedidos = await _context.Pedidos
 				.Where(p => p.UsuarioId == usuarioId)
-				.Include(p => p.Detalles) 
+				.Include(p => p.Detalles)
 				.OrderByDescending(p => p.FechaPedido)
 				.ToListAsync();
-
-			if (pedidos == null || !pedidos.Any())
-			{
-				return NotFound(new { mensaje = "No se encontraron pedidos para este usuario." });
-			}
 
 			return Ok(pedidos);
 		}
@@ -81,7 +80,7 @@ namespace TechStoreApi.Controllers
 		{
 			var pedido = await _context.Pedidos
 				.Include(p => p.Detalles)
-				.ThenInclude(d => d.Producto) 
+				.ThenInclude(d => d.Producto)
 				.FirstOrDefaultAsync(p => p.Id == id);
 
 			if (pedido == null) return NotFound();
