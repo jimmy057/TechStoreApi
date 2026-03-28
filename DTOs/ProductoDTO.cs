@@ -9,9 +9,10 @@
 		public decimal Precio { get; set; }
 		public decimal? PrecioOferta { get; set; }
 		public string ImagenUrl { get; set; } = string.Empty;
-		public string NombreCategoria { get; set; } = string.Empty; 
+		public string NombreCategoria { get; set; } = string.Empty;
 		public string Procesador { get; set; } = string.Empty;
 		public string RAM { get; set; } = string.Empty;
 		public double Calificacion { get; set; }
+		public List<string> Galeria { get; set; } = new();
 	}
 }

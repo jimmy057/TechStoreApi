@@ -18,6 +18,7 @@ namespace TechStoreApi.Data
 		public DbSet<DetallePedido> DetallePedidos { get; set; }
 		public DbSet<CarritoItems> CarritoItems { get; set; }
 		public DbSet<Favorito> Favoritos { get; set; }
+		public DbSet<ImagenProducto> ImagenesProducto { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

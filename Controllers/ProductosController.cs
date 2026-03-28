@@ -17,7 +17,10 @@ namespace TechStoreApi.Controllers
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<ProductoDTO>>> GetProductos(int? categoriaId = null)
 		{
-			var query = _context.Productos.Include(p => p.Categoria).AsQueryable();
+			var query = _context.Productos
+				.Include(p => p.Categoria)
+				.Include(p => p.Imagenes) 
+				.AsQueryable();
 
 			if (categoriaId.HasValue)
 				query = query.Where(p => p.CategoriaId == categoriaId);
@@ -33,14 +36,19 @@ namespace TechStoreApi.Controllers
 				NombreCategoria = p.Categoria != null ? p.Categoria.Nombre : "General",
 				RAM = p.RAM,
 				Procesador = p.Procesador,
-				Calificacion = p.Calificacion
+				Calificacion = p.Calificacion,
+				Galeria = p.Imagenes.Select(i => i.Url).ToList() 
 			}).ToListAsync();
 		}
 
 		[HttpGet("{id}")]
 		public async Task<ActionResult<ProductoDTO>> GetProducto(int id)
 		{
-			var p = await _context.Productos.Include(p => p.Categoria).FirstOrDefaultAsync(x => x.Id == id);
+			var p = await _context.Productos
+				.Include(p => p.Categoria)
+				.Include(p => p.Imagenes) 
+				.FirstOrDefaultAsync(x => x.Id == id);
+
 			if (p == null) return NotFound();
 
 			return new ProductoDTO
@@ -51,16 +59,17 @@ namespace TechStoreApi.Controllers
 				ImagenUrl = p.ImagenUrl,
 				NombreCategoria = p.Categoria?.Nombre ?? "",
 				RAM = p.RAM,
-				Procesador = p.Procesador
+				Procesador = p.Procesador,
+				Galeria = p.Imagenes.Select(i => i.Url).ToList() 
 			};
 		}
 
-		// NUEVO: Buscador para la App Android
 		[HttpGet("buscar")]
 		public async Task<ActionResult<IEnumerable<ProductoDTO>>> BuscarProductos([FromQuery] string q)
 		{
 			return await _context.Productos
 				.Include(p => p.Categoria)
+				.Include(p => p.Imagenes) 
 				.Where(p => p.Nombre.ToLower().Contains(q.ToLower()) || p.Marca.ToLower().Contains(q.ToLower()))
 				.Select(p => new ProductoDTO
 				{
@@ -69,11 +78,11 @@ namespace TechStoreApi.Controllers
 					Marca = p.Marca,
 					Precio = p.Precio,
 					ImagenUrl = p.ImagenUrl,
-					NombreCategoria = p.Categoria != null ? p.Categoria.Nombre : "General"
+					NombreCategoria = p.Categoria != null ? p.Categoria.Nombre : "General",
+					Galeria = p.Imagenes.Select(i => i.Url).ToList() 
 				}).ToListAsync();
 		}
 
-		// NUEVO (ADMIN): Crear producto
 		[HttpPost]
 		public async Task<ActionResult<Producto>> PostProducto(Producto producto)
 		{
@@ -82,7 +91,6 @@ namespace TechStoreApi.Controllers
 			return Ok(producto);
 		}
 
-		// NUEVO (ADMIN): Editar producto (Para actualizar stock manualmente, por ejemplo)
 		[HttpPut("{id}")]
 		public async Task<IActionResult> PutProducto(int id, Producto producto)
 		{
@@ -99,7 +107,6 @@ namespace TechStoreApi.Controllers
 			return NoContent();
 		}
 
-		// NUEVO (ADMIN): Borrar producto
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteProducto(int id)
 		{
@@ -108,6 +115,24 @@ namespace TechStoreApi.Controllers
 			_context.Productos.Remove(p);
 			await _context.SaveChangesAsync();
 			return Ok(new { mensaje = "Producto eliminado" });
+		}
+
+		[HttpPost("{productoId}/imagenes")]
+		public async Task<ActionResult> AgregarImagenGaleria(int productoId, [FromBody] string urlImagen)
+		{
+			var producto = await _context.Productos.FindAsync(productoId);
+			if (producto == null) return NotFound(new { mensaje = "Producto no encontrado" });
+
+			var nuevaImagen = new ImagenProducto
+			{
+				ProductoId = productoId,
+				Url = urlImagen
+			};
+
+			_context.ImagenesProducto.Add(nuevaImagen);
+			await _context.SaveChangesAsync();
+
+			return Ok(new { mensaje = "Imagen agregada a la galería con éxito" });
 		}
 	}
 }
