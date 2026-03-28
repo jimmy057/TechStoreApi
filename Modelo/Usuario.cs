@@ -9,8 +9,8 @@ namespace TechStoreApi.Modelo
 		[Required]
 		public string Email { get; set; } = string.Empty;
 		[Required]
-		public string PasswordHash { get; set; } = string.Empty; // Nunca guardar en texto plano
-		public string Rol { get; set; } = "Cliente"; // Cliente o Admin
+		public string PasswordHash { get; set; } = string.Empty; 
+		public string Rol { get; set; } = "Cliente"; 
 		public DateTime FechaRegistro { get; set; } = DateTime.Now;
 	}
 }

@@ -15,11 +15,9 @@ namespace TechStoreApi.Modelo
 		public int Stock { get; set; }
 		public string ImagenUrl { get; set; } = string.Empty;
 
-		// Relación con Categoría
 		public int CategoriaId { get; set; }
 		public Categoría? Categoria { get; set; }
 
-		// Especificaciones técnicas (JSON o String)
 		public string Procesador { get; set; } = string.Empty;
 		public string RAM { get; set; } = string.Empty;
 		public string Almacenamiento { get; set; } = string.Empty;

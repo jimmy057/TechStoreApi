@@ -7,9 +7,8 @@ namespace TechStoreApi.Modelo
 		public int Id { get; set; }
 		[Required]
 		public string Nombre { get; set; } = string.Empty;
-		public string ImagenIconoUrl { get; set; } = string.Empty; // Para los iconos del Home
+		public string ImagenIconoUrl { get; set; } = string.Empty; 
 
-		// Relación inversa
 		public List<Producto> Productos { get; set; } = new();
 	}
 }
