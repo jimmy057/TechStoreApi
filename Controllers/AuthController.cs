@@ -40,6 +40,8 @@ namespace TechStoreApi.Controllers
 		[HttpPost("register")]
 		public async Task<ActionResult> Register(Usuario usuario)
 		{
+			usuario.FechaRegistro = DateTime.UtcNow;
+
 			_context.Usuarios.Add(usuario);
 			await _context.SaveChangesAsync();
 			return Ok(new { mensaje = "Usuario registrado con éxito" });
