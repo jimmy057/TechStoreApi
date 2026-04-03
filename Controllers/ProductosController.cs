@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TechStoreApi.Data;
 using TechStoreApi.DTOs;
 using TechStoreApi.Modelo;
+using System;
 
 namespace TechStoreApi.Controllers
 {
@@ -19,7 +20,7 @@ namespace TechStoreApi.Controllers
 		{
 			var query = _context.Productos
 				.Include(p => p.Categoria)
-				.Include(p => p.Imagenes) 
+				.Include(p => p.Imagenes)
 				.AsQueryable();
 
 			if (categoriaId.HasValue)
@@ -37,7 +38,7 @@ namespace TechStoreApi.Controllers
 				RAM = p.RAM,
 				Procesador = p.Procesador,
 				Calificacion = p.Calificacion,
-				Galeria = p.Imagenes.Select(i => i.Url).ToList() 
+				Galeria = p.Imagenes.Select(i => i.Url).ToList()
 			}).ToListAsync();
 		}
 
@@ -46,7 +47,7 @@ namespace TechStoreApi.Controllers
 		{
 			var p = await _context.Productos
 				.Include(p => p.Categoria)
-				.Include(p => p.Imagenes) 
+				.Include(p => p.Imagenes)
 				.FirstOrDefaultAsync(x => x.Id == id);
 
 			if (p == null) return NotFound();
@@ -60,7 +61,7 @@ namespace TechStoreApi.Controllers
 				NombreCategoria = p.Categoria?.Nombre ?? "",
 				RAM = p.RAM,
 				Procesador = p.Procesador,
-				Galeria = p.Imagenes.Select(i => i.Url).ToList() 
+				Galeria = p.Imagenes.Select(i => i.Url).ToList()
 			};
 		}
 
@@ -69,7 +70,7 @@ namespace TechStoreApi.Controllers
 		{
 			return await _context.Productos
 				.Include(p => p.Categoria)
-				.Include(p => p.Imagenes) 
+				.Include(p => p.Imagenes)
 				.Where(p => p.Nombre.ToLower().Contains(q.ToLower()) || p.Marca.ToLower().Contains(q.ToLower()))
 				.Select(p => new ProductoDTO
 				{
@@ -79,13 +80,30 @@ namespace TechStoreApi.Controllers
 					Precio = p.Precio,
 					ImagenUrl = p.ImagenUrl,
 					NombreCategoria = p.Categoria != null ? p.Categoria.Nombre : "General",
-					Galeria = p.Imagenes.Select(i => i.Url).ToList() 
+					Galeria = p.Imagenes.Select(i => i.Url).ToList()
 				}).ToListAsync();
 		}
 
 		[HttpPost]
 		public async Task<ActionResult<Producto>> PostProducto(Producto producto)
 		{
+			foreach (var property in producto.GetType().GetProperties())
+			{
+				if (property.PropertyType == typeof(DateTime))
+				{
+					var currentValue = (DateTime)property.GetValue(producto);
+					property.SetValue(producto, DateTime.SpecifyKind(currentValue, DateTimeKind.Utc));
+				}
+				else if (property.PropertyType == typeof(DateTime?))
+				{
+					var currentValue = (DateTime?)property.GetValue(producto);
+					if (currentValue.HasValue)
+					{
+						property.SetValue(producto, DateTime.SpecifyKind(currentValue.Value, DateTimeKind.Utc));
+					}
+				}
+			}
+
 			_context.Productos.Add(producto);
 			await _context.SaveChangesAsync();
 			return Ok(producto);
