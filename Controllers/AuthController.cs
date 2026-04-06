@@ -30,15 +30,16 @@ namespace TechStoreApi.Controllers
 
 			return Ok(new UsuarioDTO
 			{
-				UsuarioId = usuario.Id,          
-				Nombre = usuario.NombreCompleto, 
+				UsuarioId = usuario.Id,
+				Nombre = usuario.NombreCompleto,
 				Email = usuario.Email,
-				Token = _jwtService.GenerarToken(usuario)
+				Token = _jwtService.GenerarToken(usuario),
+				Rol = usuario.Rol 
 			});
 		}
 
 		[HttpPost("register")]
-		public async Task<ActionResult> Register(RegisterRequest request) 
+		public async Task<ActionResult> Register(RegisterRequest request)
 		{
 			if (await _context.Usuarios.AnyAsync(u => u.Email == request.Email))
 			{
@@ -49,8 +50,9 @@ namespace TechStoreApi.Controllers
 			{
 				NombreCompleto = request.Nombre,
 				Email = request.Email,
-				PasswordHash = request.Clave, 
-				FechaRegistro = DateTime.UtcNow
+				PasswordHash = request.Clave,
+				FechaRegistro = DateTime.UtcNow,
+				Rol = "cliente" 
 			};
 
 			_context.Usuarios.Add(nuevoUsuario);
