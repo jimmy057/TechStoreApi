@@ -114,6 +114,23 @@ namespace TechStoreApi.Controllers
 		{
 			if (id != producto.Id) return BadRequest(new { mensaje = "El ID no coincide" });
 
+			foreach (var property in producto.GetType().GetProperties())
+			{
+				if (property.PropertyType == typeof(DateTime))
+				{
+					var currentValue = (DateTime)property.GetValue(producto);
+					property.SetValue(producto, DateTime.SpecifyKind(currentValue, DateTimeKind.Utc));
+				}
+				else if (property.PropertyType == typeof(DateTime?))
+				{
+					var currentValue = (DateTime?)property.GetValue(producto);
+					if (currentValue.HasValue)
+					{
+						property.SetValue(producto, DateTime.SpecifyKind(currentValue.Value, DateTimeKind.Utc));
+					}
+				}
+			}
+
 			_context.Entry(producto).State = EntityState.Modified;
 
 			try { await _context.SaveChangesAsync(); }
