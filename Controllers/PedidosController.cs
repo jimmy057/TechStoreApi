@@ -76,7 +76,8 @@ namespace TechStoreApi.Controllers
 			var pedidos = await _context.Pedidos
 				.Where(p => p.UsuarioId == usuarioId)
 				.Include(p => p.Detalles)
-				.OrderByDescending(p => p.Fecha) 
+					.ThenInclude(d => d.Producto) 
+				.OrderByDescending(p => p.Fecha)
 				.ToListAsync();
 
 			return Ok(pedidos);
